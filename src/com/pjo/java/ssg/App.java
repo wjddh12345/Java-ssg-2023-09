@@ -5,15 +5,18 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.pjo.java.ssg.dto.Article;
+import com.pjo.java.ssg.dto.Member;
 import com.pjo.java.ssg.util.Util;
 
 public class App {
-	List<Article> articles;
+	private List<Article> articles;
+	private List<Member> members;
 
-	App() {
-			articles = new ArrayList();
+	public App() {
+		articles = new ArrayList();
+		members = new ArrayList();
 	}
-	
+
 	public void start() {
 		System.out.println("== 프로그램 시작 == ");
 
@@ -33,13 +36,55 @@ public class App {
 
 			if (command.equals("system exit")) {
 				break;
+
+			} else if (command.equals("member join")) {
+				int id = members.size() + 1;
+				String regDate = Util.getNowDateStr();
+
+				String loginId = null;
+				String loginPw = null;
+				String loginPwConfirm = null;
+
+				while (true) {
+					System.out.printf("로그인 아이디 : ");
+					loginId = sc.nextLine();
+
+					if (isjoinableLoginId(loginId) == false) {
+						System.out.printf("%s(은)는 이미 사용중인 아이디입니다.\n", loginId);
+						continue;
+					}
+					break;
+				}
+
+				while (true) {
+					System.out.printf("로그인 비번 : ");
+					loginPw = sc.nextLine();
+					System.out.printf("로그인 비번확인 : ");
+					loginPwConfirm = sc.nextLine();
+
+					if (loginPw.equals(loginPwConfirm) == false) {
+						System.out.println("비밀번호를 다시 입력해주세요.");
+						continue;
+					}
+
+					break;
+				}
+
+				System.out.printf("이름 : ");
+				String name = sc.nextLine();
+
+				Member member = new Member(id, regDate, loginId, loginPw, name);
+				members.add(member);
+
+				System.out.printf("%d번 회원이 생성되었습니다. 환영합니다^^\n", id);
+
 			} else if (command.equals("article write")) {
 				int id = articles.size() + 1;
+				String regDate = Util.getNowDateStr();
 				System.out.printf("제목 : ");
 				String title = sc.nextLine();
 				System.out.printf("내용 : ");
 				String body = sc.nextLine();
-				String regDate = Util.getNowDateStr();
 
 				Article article = new Article(id, regDate, title, body);
 				articles.add(article);
@@ -103,7 +148,7 @@ public class App {
 				int id = Integer.parseInt(commandBits[2]);
 
 				int foundIndex = getArticleIndexById(id);
-				
+
 				if (foundIndex == -1) {
 					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
 					continue;
@@ -120,12 +165,36 @@ public class App {
 		sc.close();
 		System.out.println("== 프로그램 끝 == ");
 	}
-	
+
+	private boolean isjoinableLoginId(String loginId) {
+		int index = getMemberIndexByLoginId(loginId);
+
+		if (index == -1) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private int getMemberIndexByLoginId(String loginId) {
+		int i = 0;
+
+		for (Member member : members) {
+			if (member.loginId.equals(loginId)) {
+				return i;
+			}
+
+			i++;
+		}
+
+		return -1;
+	}
+
 	private int getArticleIndexById(int id) {
 		int i = 0;
 
-		for ( Article article : articles ) {
-			if ( article.id == id ) {
+		for (Article article : articles) {
+			if (article.id == id) {
 				return i;
 			}
 
@@ -138,7 +207,7 @@ public class App {
 	private Article getArticleById(int id) {
 		int index = getArticleIndexById(id);
 
-		if ( index != -1 ) {
+		if (index != -1) {
 			return articles.get(index);
 		}
 
