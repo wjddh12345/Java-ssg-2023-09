@@ -5,16 +5,20 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+	static List<Article> articles;
+	
+	static {
+		articles = new ArrayList();
+	}
+		
 	public static void main(String[] args) {
 		System.out.println("== 프로그램 시작 == ");
 
-		makeTestArticle();
-		
+		makeTestData();
+
 		Scanner sc = new Scanner(System.in);
 
-		int lastArticleId = 0;
-
-		List<Article> articles = new ArrayList();
+		// articles.size
 
 		while (true) {
 			System.out.printf("명령어) ");
@@ -29,7 +33,7 @@ public class Main {
 			if (command.equals("system exit")) {
 				break;
 			} else if (command.equals("article write")) {
-				int id = lastArticleId + 1;
+				int id = articles.size() + 1;
 				System.out.printf("제목 : ");
 				String title = sc.nextLine();
 				System.out.printf("내용 : ");
@@ -39,10 +43,8 @@ public class Main {
 				Article article = new Article(id, regDate, title, body);
 				articles.add(article);
 
-				lastArticleId = id;
-
 				System.out.printf("%d번 글이 생성되었습니다.\n", id);
-				
+
 			} else if (command.equals("article list")) {
 				if (articles.size() == 0) {
 					System.out.println("게시물이 없습니다.");
@@ -74,7 +76,7 @@ public class Main {
 					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
 					continue;
 				}
-				
+
 				foundArticle.increaseHit();
 
 				System.out.printf("번호 : %d\n", foundArticle.id);
@@ -82,7 +84,7 @@ public class Main {
 				System.out.printf("제목 : %s\n", foundArticle.title);
 				System.out.printf("내용 : %s\n", foundArticle.body);
 				System.out.printf("내용 : %s\n", foundArticle.hit);
-				
+
 			} else if (command.startsWith("article modify ")) {
 				String[] commandBits = command.split(" ");
 				int id = Integer.parseInt(commandBits[2]);
@@ -102,17 +104,17 @@ public class Main {
 					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
 					continue;
 				}
-				
+
 				System.out.printf("제목 : ");
 				String title = sc.nextLine();
 				System.out.printf("내용 : ");
 				String body = sc.nextLine();
-				
+
 				foundArticle.title = title;
 				foundArticle.body = body;
-				
-				System.out.printf("%d번 게시물이 수정되었습니다.\n", id);	
-				
+
+				System.out.printf("%d번 게시물이 수정되었습니다.\n", id);
+
 			} else if (command.startsWith("article delete ")) {
 				String[] commandBits = command.split(" ");
 				int id = Integer.parseInt(commandBits[2]);
@@ -145,9 +147,11 @@ public class Main {
 		System.out.println("== 프로그램 끝 == ");
 	}
 
-	private static void makeTestArticle() {
-		// 추후 구현 예정
-		
+	private static void makeTestData() {
+		System.out.println("테스트를 위한 데이터를 생성합니다.");
+		articles.add(new Article(1, Util.getNowDateStr(), "제목1", "내용1", 10));
+		articles.add(new Article(2, Util.getNowDateStr(), "제목2", "내용2", 20));
+		articles.add(new Article(3, Util.getNowDateStr(), "제목3", "내용3", 30));
 	}
 }
 
@@ -159,13 +163,17 @@ class Article {
 	int hit;
 
 	public Article(int id, String regDate, String title, String body) {
+		this(id, regDate, title, body, 0);
+	}
+	
+	public Article(int id, String regDate, String title, String body, int hit) {
 		this.id = id;
 		this.regDate = regDate;
 		this.title = title;
 		this.body = body;
-		this.hit = 0;  // 아무도 안본상태
+		this.hit = hit; // 아무도 안본상태
 	}
-	
+
 	public void increaseHit() {
 		hit++;
 	}
